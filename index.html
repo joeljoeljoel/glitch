@@ -10,7 +10,9 @@
         textarea { width: 650px; height: 400px; }
         </style>
     </head>
-    <body>
+    <body onload="redrawImage()">
+
+        <input type="range" min="1" max="100", step="1" name="amount" id="amount" value="50" />
         <h1>toDataURL</h1>
         <div id="img-container"></div>
         <h1>toImageData</h1>
@@ -18,49 +20,62 @@
         <script src="bower_components/glitch-canvas/dist/glitch-canvas-with-polyfills.js"></script>
         <script>
             /*global glitch, devicePixelRatio*/
-            var imagePath = 'images/1.jpg';
+            var imagePath = 'images/2.jpg';
 
             var imgContainerEl = document.getElementById('img-container');
             var canvasContainerEl = document.getElementById('canvas-container');
+            var amount = document.getElementById('amount');
+            amount.addEventListener("change", redrawImage, false);
 
-            var params = {
-                amount:     35,
-                iterations: 20,
-                quality:    30,
-                seed:       25
-            };
-
-            loadImage(imagePath, function (img) {
-                glitch(params)
-                    .fromImage(img)
-                    .toDataURL()
-                    .then(function(dataURL) {
-                        console.log(dataURL);
-                        var imageEl = new Image();
-                        imageEl.src = dataURL;
-                        imgContainerEl.appendChild(imageEl);
-                    });
-
-                glitch(params)
-                    .fromImage(img)
-                    .toImageData()
-                    .then(function(imageData) {
-                        var canvasEl = document.createElement('canvas');
-                        canvasEl.width = imageData.width;
-                        canvasEl.height = imageData.height;
-                        canvasEl.style.width = imageData.width + 'px';
-                        var ctx = canvasEl.getContext('2d');
-                        canvasContainerEl.appendChild(canvasEl);
-                        ctx.putImageData(imageData, 0, 0);
-                    });
-            });
-
-            function loadImage (src, callback) {
+            function redrawImage() {
                 var imageEl = new Image();
 
-                imageEl.onload = function () {
-                    callback(imageEl);
+                var params = {
+                    amount:     97,
+                    iterations: 8,
+                    quality:    46,
+                    seed:       parseInt(this.value, 10)
                 };
+                console.log(params);
+
+                imageEl.onload = function () {
+                    glitch(params)
+                        .fromImage(imageEl)
+                        .toDataURL()
+                        .then(function(dataURL) {
+                            var imageEl = new Image();
+                            imageEl.src = dataURL;
+                            var oldImage = imgContainerEl.firstChild;
+                            if (oldImage) {
+                                imgContainerEl.replaceChild(imageEl, oldImage);
+                            } else {
+                                imgContainerEl.appendChild(imageEl);
+                            }
+                        });
+
+                    // glitch(params)
+                    //     .fromImage(img)
+                    //     .toImageData()
+                    //     .then(function(imageData) {
+                    //         var canvasEl = document.createElement('canvas');
+                    //         canvasEl.width = imageData.width;
+                    //         canvasEl.height = imageData.height;
+                    //         canvasEl.style.width = imageData.width + 'px';
+                    //         var ctx = canvasEl.getContext('2d');
+                    //         canvasContainerEl.appendChild(canvasEl);
+                    //         ctx.putImageData(imageData, 0, 0);
+                    //     });
+                };
+
+                imageEl.src = imagePath;
+            }
+
+
+
+
+            function loadImage (src, callback) {
+
+
 
                 imageEl.src = src;
             }
